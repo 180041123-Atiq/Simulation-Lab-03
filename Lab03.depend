@@ -1,0 +1,51 @@
+# depslib dependency file v1.0
+1629617078 source:c:\users\asus\documents\lab03\src\queue.cpp
+	"queue.h"
+
+1629633103 c:\users\asus\documents\lab03\include\queue.h
+
+1629624420 source:c:\users\asus\documents\lab03\src\scheduler.cpp
+	"scheduler.h"
+	"event.h"
+	<iostream>
+	<fstream>
+
+1629617078 c:\users\asus\documents\lab03\include\scheduler.h
+	"event.h"
+
+1629617078 c:\users\asus\documents\lab03\include\event.h
+
+1629627766 source:c:\users\asus\documents\lab03\src\simentity.cpp
+	"SimEntity.h"
+	<iostream>
+
+1629627769 c:\users\asus\documents\lab03\include\simentity.h
+	"Queue.h"
+	"Server.h"
+
+1634910299 source:c:\users\asus\documents\lab03\main.cpp
+	<iostream>
+	<fstream>
+	"scheduler.h"
+	"server.h"
+
+1629633844 c:\users\asus\documents\lab03\include\server.h
+	"event.h"
+	"queue.h"
+	<math.h>
+	<iostream>
+	<fstream>
+
+1629617078 source:c:\users\asus\documents\lab03\src\event.cpp
+	"event.h"
+	"server.h"
+	"scheduler.h"
+
+1629634562 source:c:\users\asus\documents\lab03\src\server.cpp
+	"server.h"
+	"scheduler.h"
+	<malloc.h>
+	<cstdlib>
+	<iostream>
+	<fstream>
+
