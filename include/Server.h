@@ -33,7 +33,9 @@ class Server
         void processJob(Item* var);
         inline double& totalSystemDelay () { return (totalSystemDelay_); }
         inline double& totalQueueingDelay () { return (totalQueueingDelay_); }
-        inline int& totalQueueingLength () { return (totalQueueingLength_); }
+        inline double& totalQueueingLength () { return (totalQueueingLength_); }
+        inline double& timeLastEvent () { return (timeLastEvent_); }
+        inline double& areaServer () { return (areaServer_); }
 
         //for easy implementation SimEntity is imlemented inside server
         Server* next_;
@@ -64,7 +66,9 @@ class Server
 		int serverId_;
 		double totalSystemDelay_;
 		double totalQueueingDelay_;
-		int totalQueueingLength_;
+		double totalQueueingLength_;
+		double timeLastEvent_;
+		double areaServer_;
 };
 #endif
 

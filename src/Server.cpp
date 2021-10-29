@@ -10,34 +10,38 @@ using namespace std;
 
 Server :: Server () : a_(this), d_(this)
 {
-	queue_ = new Queue ();
+    queue_ = new Queue ();
 }
 
 double
-Server :: exponential(double mean) {
+Server :: exponential(double mean)
+{
 
-	double r = (double)rand()/RAND_MAX;
+    double r = (double)rand()/RAND_MAX;
 
-	double ex = -1 * mean * log (r);
+    double ex = -1 * mean * log (r);
 
-	return ex;
+    return ex;
 }
 
 void
-Server :: initialize () {
+Server :: initialize ()
+{
 
     if(serverId_ == 1)
-	{
-	    status_ = 0;
+    {
+        status_ = 0;
         itemArrived_ = 0;
         totalQueueingDelay_ = 0.0;
         totalQueueingLength_ = 0;
+        timeLastEvent_ = 0.0;
+        areaServer_ = 0.0;
 
         double t = exponential (arrivalMean_);
         //trace_ << "interarrival time " << t << endl;
         a_.activate (t);
-	}
-	else
+    }
+    else
     {
         //when we are inside server 2
         //and server 2 has no arrival
@@ -47,26 +51,31 @@ Server :: initialize () {
         totalSystemDelay_ = 0.0;
         totalQueueingDelay_ = 0.0;
         totalQueueingLength_ = 0;
+        timeLastEvent_ = 0.0;
+        areaServer_ = 0.0;
     }
 }
 
 void
-Server :: createTraceFile () {
+Server :: createTraceFile ()
+{
 
     if(serverId_ == 1)
-	{
-	    trace_.open ("trace1.out", ios::out);
-        if (!trace_) {
+    {
+        trace_.open ("trace1.out", ios::out);
+        if (!trace_)
+        {
             cout << "cannot open the trace file.\n";
         }
         trace_<< "trace file for the simulation" << endl;
         trace_ << "format of the file" << endl;
         trace_ << "<event> <time> <item id> <server status> <queue size><server id>" << endl << endl;
-	}
-	else
+    }
+    else
     {
         trace_.open ("trace2.out", ios::out);
-        if (!trace_) {
+        if (!trace_)
+        {
             cout << "cannot open the trace file.\n";
         }
         trace_<< "trace file for the simulation" << endl;
@@ -76,35 +85,41 @@ Server :: createTraceFile () {
 }
 
 void
-Server :: arrivalHandler () {
+Server :: arrivalHandler ()
+{
 
-	//these things are for lab 03 following the subsequent class
+    //these things are for lab 03 following the subsequent class
 
-	Item* temp = createJob();
+    Item* temp = createJob();
 
-	processJob(temp);
+    processJob(temp);
 
-	if(temp->id_ < 100)
+    if(temp->id_ < 100)
     {
         schedule_new_arrival();
     }
 }
 
 void
-Server :: departureHandler () {
+Server :: departureHandler ()
+{
 
-	//these things are for lab 03 following subsequent class
+    //these things are for lab 03 following subsequent class
 
-	if(serverId_ == 1)
+    if(serverId_ == 1)
     {
         // write to the trace file
-        if (queue_->length() > 0) {
+        if (queue_->length() > 0)
+        {
             trace_ << "d\t" << Scheduler::now () << "\t" << itemInService_->id_ << "\t" << status_ << "\t" << queue_->length() << "\t" << serverId_ << endl;
-        } else {
+        }
+        else
+        {
             trace_ << "d\t" << Scheduler::now () << "\t" << itemInService_->id_ << "\t" << 0 << "\t" << queue_->length() << "\t" << serverId_ << endl;
         }
 
-        if (queue_->length() > 0) {
+        if (queue_->length() > 0)
+        {
             itemInService_ = queue_->deque ();
 
             //calculating queue_exit time for queue 1
@@ -116,7 +131,9 @@ Server :: departureHandler () {
             double t = exponential (departureMean_);
             //trace_ << "\tservice time = " << t << endl;
             d_.activate (t);
-        } else {
+        }
+        else
+        {
             status () = 0;
             itemInService_ = 0;
         }
@@ -132,13 +149,17 @@ Server :: departureHandler () {
         //when we are inside server 2
 
         // write to the trace file
-        if (queue_->length() > 0) {
+        if (queue_->length() > 0)
+        {
             trace_ << "d\t" << Scheduler::now () << "\t" << itemInService_->id_ << "\t" << status_ << "\t" << queue_->length() << "\t" << serverId_ << endl;
-        } else {
+        }
+        else
+        {
             trace_ << "d\t" << Scheduler::now () << "\t" << itemInService_->id_ << "\t" << 0 << "\t" << queue_->length() << "\t" << serverId_ << endl;
         }
 
-        if (queue_->length() > 0) {
+        if (queue_->length() > 0)
+        {
             itemInService_ = queue_->deque ();
 
             //calculating queue_exit time for queue 2
@@ -150,7 +171,9 @@ Server :: departureHandler () {
             double t = exponential (departureMean_);
             //trace_ << "\tservice time = " << t << endl;
             d_.activate (t);
-        } else {
+        }
+        else
+        {
             status () = 0;
             itemInService_ = 0;
         }
@@ -163,15 +186,23 @@ void Server :: updateStat(Item* temp)
 {
     if(serverId_ == 1)
     {
+        double durationSinceLE = Scheduler::now() - timeLastEvent();
+        timeLastEvent() = Scheduler::now();
+
         totalQueueingDelay_ += (double) ( temp->queue_exit - temp->start_time);
-        totalQueueingLength_ += (int) (queue_->length());
+        totalQueueingLength_ += durationSinceLE * (queue_->length()) * 1.0;
+        areaServer() += durationSinceLE * (status() * 1.0);
 
     }
     else
     {
+        double durationSinceLE = Scheduler::now() - timeLastEvent();
+        timeLastEvent() = Scheduler::now();
+
         totalQueueingDelay_ += (double) (temp->queue_exit2 - temp->start_time2);
         totalSystemDelay_ += (double)( Scheduler::now() - temp->start_time );
-        totalQueueingLength_ += (int) (queue_->length());
+        totalQueueingLength_ +=  durationSinceLE * (queue_->length()) * 1.0;
+        areaServer() += durationSinceLE * (status() * 1.0);
     }
 }
 
@@ -207,11 +238,11 @@ Item* Server :: createJob()
 {
     Item* temp;
 
-	itemArrived_++;
-	temp = (Item*) malloc (sizeof(Item));
-	temp->id_ = itemArrived_;
-	temp->start_time = Scheduler::now();
-	temp->server_id = serverId_;
+    itemArrived_++;
+    temp = (Item*) malloc (sizeof(Item));
+    temp->id_ = itemArrived_;
+    temp->start_time = Scheduler::now();
+    temp->server_id = serverId_;
 
     return temp;
 }
@@ -222,18 +253,21 @@ void Server :: processJob(Item* temp)
 
     trace_ << "a\t" << Scheduler::now () << "\t" << temp->id_ << "\t" << status_ << "\t" << queue_->length()<< "\t" << serverId_ << endl;
 
-	if (status () == 0) {
-		// write to the trace file
-		status() = 1;
-		trace_ << "s\t" << Scheduler::now () << "\t" << temp->id_ << "\t" << status_ << "\t" << queue_->length() << "\t" << serverId_ << endl;
-		itemInService_ = temp;
+    if (status () == 0)
+    {
+        // write to the trace file
+        status() = 1;
+        trace_ << "s\t" << Scheduler::now () << "\t" << temp->id_ << "\t" << status_ << "\t" << queue_->length() << "\t" << serverId_ << endl;
+        itemInService_ = temp;
 
-		double t = exponential (departureMean_);
-		//trace_ << "\tservice time = " << t << endl;
-		d_.activate (t);
-	} else {
-		queue_->enque(temp);
-	}
+        double t = exponential (departureMean_);
+        //trace_ << "\tservice time = " << t << endl;
+        d_.activate (t);
+    }
+    else
+    {
+        queue_->enque(temp);
+    }
 }
 
 void Server :: report()
@@ -245,8 +279,9 @@ void Server :: report()
         trace_<<endl;
         trace_<<endl;
 
-        trace_<<"Avarage Queueing Delay for Server 1 : "<<totalQueueingDelay_/100.0<<endl;
+        trace_<<"Avarage Waiting time for Server 1 : "<<totalQueueingDelay_/100.0<<endl;
         trace_<<"Avarage Queueing Length for Server 1 : "<<(double) ( (totalQueueingLength_*(1.0)) / Scheduler::now() )<<endl;
+        trace_<<"Average Server 1 Utilization : "<<(areaServer()/(Scheduler::now()*1.0))<<endl;
     }
     else
     {
@@ -255,9 +290,9 @@ void Server :: report()
         trace_<<endl;
         trace_<<endl;
 
-        trace_<<"Average Queueing Delay for Server 2 : "<<totalQueueingDelay_/100.0<<endl;
+        trace_<<"Average Waiting time for Server 2 : "<<totalQueueingDelay_/100.0<<endl;
         trace_<<"Avarage Queueing Length for Server 2 : "<<(double) ( (totalQueueingLength_*(1.0)) / Scheduler::now() )<<endl;
         trace_<<"Avarage System Delay : "<<totalSystemDelay_/100.0<<endl;
-
+        trace_<<"Average Server 2 Utilization : "<<(areaServer()/(Scheduler::now()*1.0))<<endl;
     }
 }

@@ -304,5 +304,6 @@ s	296.885	100	1	0	1
 d	297.292	100	0	0	1
 
 
-Avarage Queueing Delay for Server 1 : 102.395
-Avarage Queueing Length for Server 1 : 10.9611
+Avarage Waiting time for Server 1 : 102.395
+Avarage Queueing Length for Server 1 : 32.1252
+Average Server 1 Utilization : 0.929506
