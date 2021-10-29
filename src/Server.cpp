@@ -31,6 +31,7 @@ Server :: initialize () {
 	    status_ = 0;
         itemArrived_ = 0;
         totalQueueingDelay_ = 0.0;
+        totalQueueingLength_ = 0;
 
         double t = exponential (arrivalMean_);
         //trace_ << "interarrival time " << t << endl;
@@ -45,6 +46,7 @@ Server :: initialize () {
         itemArrived_ = 0;
         totalSystemDelay_ = 0.0;
         totalQueueingDelay_ = 0.0;
+        totalQueueingLength_ = 0;
     }
 }
 
@@ -162,11 +164,14 @@ void Server :: updateStat(Item* temp)
     if(serverId_ == 1)
     {
         totalQueueingDelay_ += (double) ( temp->queue_exit - temp->start_time);
+        totalQueueingLength_ += (int) (queue_->length());
+
     }
     else
     {
         totalQueueingDelay_ += (double) (temp->queue_exit2 - temp->start_time2);
         totalSystemDelay_ += (double)( Scheduler::now() - temp->start_time );
+        totalQueueingLength_ += (int) (queue_->length());
     }
 }
 
@@ -241,6 +246,7 @@ void Server :: report()
         trace_<<endl;
 
         trace_<<"Avarage Queueing Delay for Server 1 : "<<totalQueueingDelay_/100.0<<endl;
+        trace_<<"Avarage Queueing Length for Server 1 : "<<(double) ( (totalQueueingLength_*(1.0)) / Scheduler::now() )<<endl;
     }
     else
     {
@@ -250,6 +256,8 @@ void Server :: report()
         trace_<<endl;
 
         trace_<<"Average Queueing Delay for Server 2 : "<<totalQueueingDelay_/100.0<<endl;
+        trace_<<"Avarage Queueing Length for Server 2 : "<<(double) ( (totalQueueingLength_*(1.0)) / Scheduler::now() )<<endl;
         trace_<<"Avarage System Delay : "<<totalSystemDelay_/100.0<<endl;
+
     }
 }
